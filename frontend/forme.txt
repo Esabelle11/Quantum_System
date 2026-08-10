@@ -1,0 +1,199 @@
+frontend/
+│
+├── app/
+│   ├── layout.tsx ✅
+│   ├── page.tsx ✅
+│   ├── globals.css ✅
+│   │
+│   ├── (auth)/
+│   │   ├── login/
+│   │   │   └── page.tsx ✅
+│   │   └── register/
+│   │       └── page.tsx ✅
+│   │
+│   ├── dashboard/
+│   │   └── page.tsx ✅
+│   │
+│   ├── market/
+│   │   ├── page.tsx ✅
+│   │   └── [symbol]/
+│   │       └── page.tsx ✅
+│   │
+│   ├── research/
+│   │   ├── page.tsx ✅
+│   │   └── [id]/
+│   │       └── page.tsx ✅
+│   │
+│   ├── backtest/
+│   │   ├── page.tsx ✅
+│   │   └── [id]/
+│   │       └── page.tsx ✅
+│   │
+│   ├── strategy/
+│   │   ├── page.tsx ✅
+│   │   ├── new/
+│   │   │   └── page.tsx ✅
+│   │   └── [id]/
+│   │       └── page.tsx ✅
+│   │
+│   ├── trading/
+│   │   ├── page.tsx ✅
+│   │   ├── positions/
+│   │   │   └── page.tsx ✅
+│   │   └── orders/
+│   │       └── page.tsx ✅
+│   │
+│   └── settings/
+│       └── page.tsx ✅
+│
+├── components/
+│   │
+│   ├── layout/
+│   │   ├── AppShell.tsx ✅
+│   │   ├── Sidebar.tsx ✅
+│   │   ├── Topbar.tsx ✅
+│   │   └── PageContainer.tsx ✅
+│   │
+│   ├── charts/
+│   │   ├── CandlestickChart.tsx ✅
+│   │   ├── VolumeChart.tsx ✅
+│   │   ├── EquityCurve.tsx ✅
+│   │   ├── DrawdownChart.tsx ✅
+│   │   ├── PnLChart.tsx ✅
+│   │   └── FeatureChart.tsx ✅
+│   │
+│   ├── market/
+│   │   ├── SymbolSelector.tsx ✅
+│   │   ├── MarketOverview.tsx ✅
+│   │   ├── PriceCard.tsx ✅
+│   │   ├── FundingCard.tsx ✅
+│   │   ├── OpenInterestCard.tsx ✅
+│   │   ├── LiquidationCard.tsx ✅
+│   │   ├── OrderBook.tsx ✅
+│   │   └── TradeFlow.tsx ✅
+│   │
+│   ├── research/
+│   │   ├── FeatureSelector.tsx ✅
+│   │   ├── FeaturePanel.tsx ✅
+│   │   ├── SignalPanel.tsx ✅
+│   │   ├── RegimePanel.tsx ✅
+│   │   ├── HypothesisPanel.tsx ✅
+│   │   ├── EvidencePanel.tsx ✅
+│   │   └── ResearchReport.tsx ✅
+│   │
+│   ├── backtest/
+│   │   ├── BacktestForm.tsx ✅
+│   │   ├── BacktestSummary.tsx ✅
+│   │   ├── PerformanceMetrics.tsx ✅
+│   │   ├── EquityCurve.tsx ✅
+│   │   ├── DrawdownChart.tsx ✅
+│   │   └── TradeTable.tsx ✅
+│   │
+│   ├── strategy/
+│   │   ├── StrategyCard.tsx ✅
+│   │   ├── StrategyForm.tsx ✅
+│   │   ├── SignalConfig.tsx ✅
+│   │   ├── RegimeConfig.tsx ✅
+│   │   └── StrategyStatus.tsx ✅
+│   │
+│   ├── trading/
+│   │   ├── OrderForm.tsx
+│   │   ├── PositionTable.tsx
+│   │   ├── OrderTable.tsx
+│   │   ├── PortfolioSummary.tsx
+│   │   └── RiskPanel.tsx
+│   │
+│   └── ui/
+│       ├── Button.tsx ✅
+│       ├── Card.tsx ✅
+│       ├── Badge.tsx ✅
+│       ├── Input.tsx ✅
+│       ├── Select.tsx ✅
+│       ├── Table.tsx ✅
+│       ├── Tabs.tsx ✅
+│       ├── Dialog.tsx ✅
+│       ├── Skeleton.tsx ✅
+│       └── EmptyState.tsx ✅
+│
+├── lib/
+│   │
+│   ├── api/
+│   │   ├── client.ts ✅
+│   │   ├── market.ts ✅
+│   │   ├── features.ts ✅
+│   │   ├── research.ts ✅
+│   │   ├── backtest.ts ✅
+│   │   ├── strategy.ts ✅
+│   │   └── trading.ts ✅
+│   │
+│   ├── supabase/
+│   │   ├── client.ts ✅
+│   │   ├── server.ts ✅
+│   │   └── middleware.ts ✅
+│   │
+│   ├── utils.ts  ✅
+│   └── constants.ts  ✅
+│
+├── hooks/
+│   ├── useMarket.ts ✅
+│   ├── useFeatures.ts ✅
+│   ├── useResearch.ts ✅
+│   ├── useBacktest.ts ✅
+│   ├── useStrategies.ts ✅
+│   └── useTrading.ts ✅
+│
+├── stores/
+│   ├── marketStore.ts ✅
+│   ├── researchStore.ts ✅
+│   ├── tradingStore.ts ✅
+│   └── uiStore.ts ✅
+│
+├── types/
+│   ├── market.ts ✅
+│   ├── features.ts ✅
+│   ├── research.ts ✅
+│   ├── backtest.ts ✅
+│   ├── strategy.ts ✅
+│   ├── trading.ts ✅
+│   └── database.ts ✅
+│
+├── providers/
+│   ├── QueryProvider.tsx ✅
+│   └── ThemeProvider.tsx ✅
+│
+├── middleware.ts ✅
+├── next.config.ts ✅
+├── tsconfig.json ✅
+├── postcss.config.mjs ✅
+├── eslint.config.mjs ✅
+├── package.json ✅
+├── .env.local ✅
+└── README.md
+
+
+
+
+
+
+                    QUANT SYSTEM
+                         │
+        ┌────────────────┼─────────────────┐
+        │                │                 │
+     Backend          Frontend          Database
+        │                │                 │
+        ▼                ▼                 ▼
+    Exchange         Dashboard          Supabase
+    Collectors       Market
+    Storage          Research
+    Features         Backtest
+    Backtest         Strategy
+    Strategy         Trading
+    Execution
+    Analysis
+    API
+
+
+
+
+
+npm install lightweight-charts recharts

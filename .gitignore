@@ -1,0 +1,84 @@
+# ==========================================
+# 1. Secrets & Environment Files (CRITICAL)
+# ==========================================
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+*.cert
+
+# ==========================================
+# 2. Python (Backend) Caches & Environments
+# ==========================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches & Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# ==========================================
+# 3. Node.js & Next.js (Frontend)
+# ==========================================
+# Dependencies
+**/node_modules/
+.pnpm-store/
+
+# Next.js Build Outputs
+frontend/.next/
+frontend/out/
+frontend/build/
+**/dist/
+
+# Logs & Caches
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+
+# Next.js telemetry / local data
+.next/cache/
+
+# ==========================================
+# 4. Operating System & IDE Files
+# ==========================================
+# macOS
+.DS_Store
+.AppleDouble
+.lsconnected
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs & Editors
+.vscode/
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# ==========================================
+# 5. Local Database & Temporary Files
+# ==========================================
+*.sqlite
+*.sqlite3
+*.db
+*.log
+
+# Temp notes or text scratchpads (Optional)
+**/note.txt

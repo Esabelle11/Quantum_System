@@ -1,0 +1,66 @@
+**Yes. Exactly.** For your current goal, that's the right setup:
+
+```text
+Oracle Cloud VM
+      │
+      ▼
+   systemd
+      │
+      ▼
+collect_live.py
+      │
+      ├── LiquidationCollector
+      ├── TradeCollector
+      └── OrderbookCollector
+             │
+             ▼
+          Supabase
+```
+
+And it runs **24/7**, even when your Mac is completely shut down.
+
+### What you need to set up on Oracle
+
+1. Create the Oracle Cloud VM.
+2. Install Python + your backend dependencies.
+3. Clone/upload your `quant-system` backend.
+4. Configure your environment variables (`SUPABASE_URL`, `SUPABASE_KEY`, Bybit credentials if needed, etc.).
+5. Test:
+
+```bash
+python scripts/collect_live.py
+```
+
+6. Once confirmed working, create a `systemd` service:
+
+```text
+quantum-collector.service
+        ↓
+python scripts/collect_live.py
+        ↓
+runs continuously
+        ↓
+if process crashes → systemd restarts it
+```
+
+7. Enable it on boot.
+
+Then your final behavior is:
+
+```text
+Mac OFF ❌
+     │
+     │
+     ▼
+Oracle VM ✅
+     │
+     └── collect_live.py
+             │
+             ├── Trades ────────► Supabase
+             ├── Orderbook ─────► Supabase
+             └── Liquidations ──► Supabase
+```
+
+**No Render Cron is needed for these live streams.**
+
+One thing before you start: because Oracle's attractive Always Free VM is **ARM64**, I'd check your `requirements.txt` first to make sure your dependencies are compatible.

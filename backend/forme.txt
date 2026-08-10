@@ -1,0 +1,164 @@
+quant-system/
+│
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   │
+│   │   ├── config/
+│   │   │   ├── __init__.py
+│   │   │   └── settings.py ✅
+│   │   │
+│   │   ├── exchange/
+│   │   │   ├── __init__.py
+│   │   │   ├── bybit_client.py ✅
+│   │   │   ├── bybit_rest.py ✅
+│   │   │   └── bybit_websocket.py ✅
+│   │   │
+│   │   ├── collectors/
+│   │   │   ├── __init__.py
+│   │   │   ├── kline_collector.py ✅
+│   │   │   ├── funding_collector.py ✅
+│   │   │   ├── oi_collector.py ✅
+│   │   │   ├── liquidation_collector.py ✅
+│   │   │   ├── trade_collector.py ✅
+│   │   │   └── orderbook_collector.py ✅
+│   │   │
+│   │   ├── storage/
+│   │   │   ├── __init__.py
+│   │   │   ├── supabase_client.py  ✅
+│   │   │   └── repositories/
+│   │   │       ├── __init__.py
+│   │   │       ├── kline_repository.py  ✅
+│   │   │       ├── funding_repository.py  ✅
+│   │   │       ├── oi_repository.py  ✅
+│   │   │       └── liquidation_repository.py  ✅
+│   │   │       ├── trade_repository.py  ✅
+│   │   │       └── orderbook_repository.py  ✅
+│   │   │
+│   │   ├── features/
+│   │   │   ├── __init__.py
+│   │   │   ├── price_features.py ✅
+│   │   │   ├── volatility_features.py ✅
+│   │   │   ├── funding_features.py  ✅
+│   │   │   ├── oi_features.py  ✅
+│   │   │   └── liquidation_features.py  ✅
+│   │   │
+│   │   │
+│   │   ├── backtest/
+│   │   │   ├── __init__.py
+│   │   │   ├── engine.py  ✅
+│   │   │   ├── strategy.py  ✅
+│   │   │   ├── portfolio.py ✅
+│   │   │   └── metrics.py ✅
+│   │   │
+│   │   ├── strategy/
+│   │   │   ├── __init__.py
+│   │   │   ├── signal.py ✅
+│   │   │   └── regime.py ✅
+│   │   │
+│   │   ├── execution/
+│   │   │   ├── __init__.py
+│   │   │   ├── executor.py ✅
+│   │   │   └── risk_manager.py ✅
+│   │   │
+        ├── analysis/          ← NEW
+        │   ├── __init__.py
+        │   ├── analyzer.py
+        │   ├── hypothesis.py
+        │   ├── evidence.py
+        │   └── report.py
+│   │   └── api/
+│   │       ├── __init__.py
+│   │       └── main.py ✅    
+│   │
+│   ├── tests/
+│   │    ├── __init__.py
+│   │    │
+│   │    ├── test_exchange/
+│   │    │   ├── __init__.py
+│   │    │   ├── test_bybit_rest.py ✅
+│   │    │   └── test_bybit_client.py ✅
+│   │    │
+│   │    ├── test_features/
+│   │    │   ├── __init__.py
+│   │    │   ├── test_price_features.py ✅
+│   │    │   ├── test_volatility_features.py ✅
+│   │    │   ├── test_funding_features.py ✅
+│   │    │   ├── test_oi_features.py ✅
+│   │    │   └── test_liquidation_features.py ✅
+│   │    │
+│   │    ├── test_backtest/
+│   │    │   ├── __init__.py
+│   │    │   ├── test_strategy.py ✅
+│   │    │   ├── test_portfolio.py ✅
+│   │    │   └── test_metrics.py ✅
+│   │    │
+│   │    ├── test_strategy/
+│   │    │   ├── __init__.py
+│   │    │   ├── test_signal.py ✅
+│   │    │   └── test_regime.py ✅
+│   │    │
+│   │    └── test_execution/
+│   │        ├── __init__.py
+│   │        └── test_risk_manager.py ✅
+│   │
+│   ├── scripts/
+│   │   ├── __init__.py
+│   │   ├── collect_historical.py ✅
+│   │   ├── collect_live.py ✅
+│   │   ├── run_backtest.py ✅
+│   │   └── run_api.py ✅
+│   │
+│   ├── .env ✅
+│   └── requirements.txt ✅
+│
+└── README.md
+
+
+
+run
+cd quant-system/backend
+pip install -r requirements.txt
+
+# 1. Start API
+uvicorn app.api.main:app --reload
+
+python -m scripts.collect_historical
+
+# 2. Collect live market data
+python -m scripts.collect_live
+
+# 3. Run a backtest
+python scripts/run_backtest.py
+
+# 4. Start frontend
+npm run dev
+
+┌─────────────────────────────────────────────┐
+│              NEXT.JS FRONTEND               │
+│                                             │
+│ Dashboard │ Market │ Backtest │ Strategy    │
+└───────────────────┬─────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────┐
+│                 FASTAPI                     │
+│                                             │
+│ /market                                     │
+│ /features                                   │
+│ /signals                                    │
+│ /backtest                                   │
+└───────────────────┬─────────────────────────┘
+                    │
+          ┌─────────┴──────────┐
+          ▼                    ▼
+     Supabase              Quant Engine
+          ▲                    │
+          │                    ▼
+       Bybit              Strategy
+                              │
+                              ▼
+                         Risk Manager
+                              │
+                              ▼
+                          Execution
