@@ -79,8 +79,8 @@ async def main():
 
     await asyncio.gather(
         collect_liquidations(),
-        # collect_trades(),
-        # collect_orderbook(),
+        collect_trades(),
+        collect_orderbook(),
     )
 
 
