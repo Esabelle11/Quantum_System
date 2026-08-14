@@ -82,3 +82,9 @@ Desktop.ini
 
 # Temp notes or text scratchpads (Optional)
 **/note.txt
+backend/ssh_command.md
+**/forme.txt
+**/forme.md
+backend/ssh_command.md
+backend/about_oracle.txtbackend/data/
+*.parquet

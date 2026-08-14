@@ -1,101 +1,144 @@
+import numpy as np
 import pandas as pd
 
 
-def oi_change(
+# ============================================================
+# OI Change
+# ============================================================
+
+def calculate_oi_change(
     df: pd.DataFrame,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["oi_change"] = (
-        df["open_interest"].diff()
-    )
+    if "oi_change" not in config:
+        return df
+
+    for key, periods in config["oi_change"].items():
+
+        df[f"oi_change_{key}"] = (df["open_interest"].pct_change(periods))
 
     return df
 
 
-def oi_pct_change(
+# ============================================================
+# OI Momentum / Trend
+# ============================================================
+
+def calculate_oi_momentum(
     df: pd.DataFrame,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["oi_pct_change"] = (
-        df["open_interest"].pct_change()
-    )
+    if "oi_momentum" not in config:
+        return df
+
+    for key, window in config["oi_momentum"].items():
+
+        oi_ma = (df["open_interest"].rolling(window).mean())
+
+        # df[f"oi_ma_{key}"] = oi_ma
+
+        df[f"oi_vs_ma_{key}"] = (df["open_interest"] / oi_ma - 1)
 
     return df
 
 
-def rolling_oi_mean(
+# ============================================================
+# Price-OI Relationship
+# ============================================================
+
+def calculate_price_oi_relation(
     df: pd.DataFrame,
-    window: int = 20,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["oi_mean"] = (
-        df["open_interest"]
-        .rolling(window)
-        .mean()
-    )
+    if "price_oi_relation" not in config:
+        return df
+
+    for key, periods in config["price_oi_relation"].items():
+
+        price_return = (df["close"].pct_change(periods))
+        oi_change = (df["open_interest"].pct_change(periods))
+
+        # df[f"price_return_{key}"] = price_return
+        # df[f"oi_change_relation_{key}"] = oi_change
+
+        # df[f"price_oi_product_{key}"] = (price_return * oi_change)
+        df[f"price_oi_same_direction_{key}"] = (np.sign(price_return) == np.sign(oi_change)).astype(int)
+        df[f"price_oi_regime_{key}"] = (np.sign(price_return) * 2 + np.sign(oi_change))
 
     return df
 
 
-def rolling_oi_std(
+# ============================================================
+# Rolling OI Standard Deviation
+# ============================================================
+
+def calculate_oi_std(
     df: pd.DataFrame,
-    window: int = 20,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["oi_std"] = (
-        df["open_interest"]
-        .rolling(window)
-        .std()
-    )
+    if "oi_std" not in config:
+        return df
+
+    for key, window in config["oi_std"].items():
+        df[f"oi_std_{key}"] = (df["open_interest"].rolling(window).std())
 
     return df
 
 
-def oi_zscore(
+# ============================================================
+# OI Z-Score
+# ============================================================
+
+def calculate_oi_zscore(
     df: pd.DataFrame,
-    window: int = 20,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    mean = (
-        df["open_interest"]
-        .rolling(window)
-        .mean()
-    )
+    if "oi_zscore" not in config:
+        return df
 
-    std = (
-        df["open_interest"]
-        .rolling(window)
-        .std()
-    )
+    for key, window in config["oi_zscore"].items():
 
-    df["oi_zscore"] = (
-        (df["open_interest"] - mean)
-        / std
-    )
+        mean = (df["open_interest"].rolling(window).mean())
+        std = (df["open_interest"].rolling(window).std())
+
+        df[f"oi_zscore_{key}"] = ((df["open_interest"] - mean)/ std)
 
     return df
 
 
-def oi_momentum(
+# ============================================================
+# Main OI Feature Builder
+# ============================================================
+
+def calculate_oi_features(
     df: pd.DataFrame,
-    window: int = 5,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["oi_momentum"] = (
-        df["open_interest"]
-        .pct_change(window)
-    )
+    df = calculate_oi_change(df,config,)
+    df = calculate_oi_momentum(df,config,)
+    df = calculate_price_oi_relation(df,config,)
+    df = calculate_oi_std(df,config,)
+    df = calculate_oi_zscore(df,config,)
 
     return df
+
+
+    

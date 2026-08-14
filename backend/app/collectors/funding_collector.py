@@ -5,6 +5,13 @@ from datetime import datetime, timezone
 import time
 from app.helper.retry import retry_async
 
+
+from pathlib import Path
+
+import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
+
 class FundingCollector:
 
     def __init__(self):
@@ -44,6 +51,8 @@ class FundingCollector:
         symbol: str = "BTCUSDT",
         limit: int = 200,
         end: int | None = None,
+        STORE_LOCAL: bool = False,
+        local_path: str | Path | None = None,
     ):
         print("end: ",end );
         if end is None:
@@ -51,57 +60,101 @@ class FundingCollector:
 
         total = 0
 
-        while True:
+        # ============================================================
+        # Local Parquet configuration
+        # ============================================================
 
-            response = await retry_async(
-                lambda: self.exchange.get_funding_history(
-                    symbol=symbol,
-                    limit=limit,
-                    end=end,
-                ),
-                retries=5,
-                delay=2,
+        parquet_writer = None
+
+        if STORE_LOCAL:
+
+            if local_path is None:
+                local_path = ( Path("data") / "raw" / f"funding_rates.parquet")
+
+            local_path = Path(local_path)
+            local_path.parent.mkdir(
+                parents=True,
+                exist_ok=True,
             )
 
-            items = response["result"]["list"]
+            print(f"Storing locally to: {local_path}")
+        
+        try:
 
-            if not items:
-                break
+            while True:
 
-            records = []
-
-            for item in items:
-                records.append({
-                    "symbol": symbol,
-                    "timestamp": datetime.fromtimestamp(
-                        int(item["fundingRateTimestamp"]) / 1000,
-                        tz=timezone.utc,
+                response = await retry_async(
+                    lambda: self.exchange.get_funding_history(
+                        symbol=symbol,
+                        limit=limit,
+                        end=end,
                     ),
-                    "funding_rate": float(item["fundingRate"]),
-                })
+                    retries=5,
+                    delay=2,
+                )
 
-            self.repository.insert_many(records)
+                items = response["result"]["list"]
 
-            total += len(records)
+                if not items:
+                    break
 
-            # Find the oldest candle in this batch
-            oldest_timestamp = min(
-                int(item["fundingRateTimestamp"])
-                for item in items
-            )
+                records = []
 
-            # Move backwards
-            end = oldest_timestamp - 1
+                for item in items:
+                    records.append({
+                        "symbol": symbol,
+                        "timestamp": datetime.fromtimestamp(
+                            int(item["fundingRateTimestamp"]) / 1000,
+                            tz=timezone.utc,
+                        ),
+                        "funding_rate": float(item["fundingRate"]),
+                    })
+                
+                if STORE_LOCAL:
 
-            print(
-                f"Stored {len(records)} candles | "
-                f"Total: {total} | "
-                f"Oldest: {datetime.fromtimestamp(oldest_timestamp / 1000, tz=timezone.utc)}"
-            )
+                    df = pd.DataFrame(records)
+                    # Convert pandas DataFrame -> Arrow Table
+                    table = pa.Table.from_pandas( df,preserve_index=False,)
 
-            # If fewer than limit came back,
-            # we've probably reached the earliest available data.
-            if len(items) < limit:
-                break
+                    # Create writer using the first batch schema
+                    if parquet_writer is None:
+                        parquet_writer = pq.ParquetWriter(
+                            local_path,
+                            table.schema,
+                            compression="snappy",
+                        )
+
+                    # Append current batch
+                    parquet_writer.write_table(table)
+
+                else:
+                    self.repository.insert_many(records)
+
+                total += len(records)
+
+                # Find the oldest candle in this batch
+                oldest_timestamp = min(
+                    int(item["fundingRateTimestamp"])
+                    for item in items
+                )
+
+                # Move backwards
+                end = oldest_timestamp - 1
+
+                print(
+                    f"Stored {len(records)} candles | "
+                    f"Total: {total} | "
+                    f"Oldest: {datetime.fromtimestamp(oldest_timestamp / 1000, tz=timezone.utc)}"
+                )
+
+                # If fewer than limit came back,
+                # we've probably reached the earliest available data.
+                if len(items) < limit:
+                    break
+        finally:
+
+            # Make sure the Parquet file is properly closed
+            if parquet_writer is not None:
+                parquet_writer.close()
 
         return total

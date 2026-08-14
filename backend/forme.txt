@@ -131,6 +131,8 @@ python -m scripts.collect_live
 # 3. Run a backtest
 python scripts/run_backtest.py
 
+python -m scripts.export_raw_data
+
 # 4. Start frontend
 npm run dev
 
@@ -162,3 +164,37 @@ npm run dev
                               │
                               ▼
                           Execution
+
+
+
+1. Data Collection ← done
+       ↓
+2. Data Cleaning & Alignment ← done
+       ↓
+3. Feature Engineering  ← done
+       ↓
+4. Target / Label Engineering ← done
+       ↓
+5. Train / Validation / Test Split   ← done
+       ↓
+6. Baseline Model
+       ↓
+7. Model Training & Evaluation
+       ↓
+8. Backtesting
+       ↓
+9. Strategy / Signal Generation
+       ↓
+10. Risk Management
+       ↓
+11. Paper Trading
+       ↓
+12. Live Trading
+       ↓
+13. Monitoring & Continuous Retraining
+
+
+
+
+
+python -c "import pandas as pd; df=pd.read_parquet('data/splits/train/target.parquet'); print('\n'.join(df.columns))"

@@ -5,6 +5,7 @@ from app.collectors.funding_collector import FundingCollector
 from app.collectors.kline_collector import KlineCollector
 from app.collectors.oi_collector import OICollector
 
+# python -m scripts.collect_historical
 
 logging.basicConfig(
     level=logging.INFO,
@@ -14,7 +15,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 SYMBOL = "BTCUSDT"
-
+STORE_LOCAL= True
 
 async def main():
     logger.info( "Starting historical data collection..." )
@@ -23,30 +24,30 @@ async def main():
     funding_collector = FundingCollector()
     oi_collector = OICollector()
 
-    # # -----------------------------
-    # # Klines
-    # # -----------------------------
+    # -----------------------------
+    # Klines
+    # -----------------------------
 
-    # logger.info("Collecting klines for %s...", SYMBOL)
+    logger.info("Collecting klines for %s...", SYMBOL)
 
-    # try:
-    #     klines = await kline_collector.collect_store(symbol=SYMBOL, end=1652203980000)
-    #     logger.info("Collected %d kline records",klines)
+    try:
+        klines = await kline_collector.collect_store(symbol=SYMBOL,STORE_LOCAL=STORE_LOCAL)
+        logger.info("Collected %d kline records",klines)
 
-    # except Exception:
-    #     logger.exception("Kline collection failed")
+    except Exception:
+        logger.exception("Kline collection failed")
 
-    # # -----------------------------
-    # # Funding
-    # # -----------------------------
-    # logger.info( "Collecting funding history...")
+    # -----------------------------
+    # Funding
+    # -----------------------------
+    logger.info( "Collecting funding history...")
 
-    # try:
-    #     funding = await funding_collector.collect_store(symbol=SYMBOL, end=1599148800000)
-    #     logger.info("Collected %d funding records",funding)
+    try:
+        funding = await funding_collector.collect_store(symbol=SYMBOL,STORE_LOCAL=STORE_LOCAL)
+        logger.info("Collected %d funding records",funding)
 
-    # except Exception:
-    #     logger.exception("Funding collection failed")
+    except Exception:
+        logger.exception("Funding collection failed")
 
     # -----------------------------
     # Open Interest
@@ -54,7 +55,7 @@ async def main():
     logger.info("Collecting open interest...")
 
     try:
-        oi = await oi_collector.collect_store(symbol=SYMBOL, end=1626283200000)
+        oi = await oi_collector.collect_store(symbol=SYMBOL,STORE_LOCAL=STORE_LOCAL)
         logger.info("Collected %d OI records", oi)
 
     except Exception:

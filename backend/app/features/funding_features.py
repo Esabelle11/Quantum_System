@@ -1,88 +1,284 @@
 import pandas as pd
+import numpy as np
 
 
-def funding_change(
+# ============================================================
+# Funding Change
+# ============================================================
+
+def calculate_funding_change(
     df: pd.DataFrame,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["funding_change"] = (
-        df["funding_rate"].diff()
-    )
+    if "funding_change" not in config:
+        return df
+
+    for key, periods in config["funding_change"].items():
+
+        df[f"funding_change_{key}"] = (
+            df["funding_rate"].diff(periods)
+        )
 
     return df
 
 
-def rolling_funding_mean(
+# ============================================================
+# Rolling Funding Mean
+# ============================================================
+
+def calculate_funding_mean(
     df: pd.DataFrame,
-    window: int = 10,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["funding_mean"] = (
-        df["funding_rate"]
-        .rolling(window)
-        .mean()
-    )
+    if "funding_mean" not in config:
+        return df
+
+    for key, window_config in config["funding_mean"].items():
+
+        # Support either:
+        #
+        # "12": 12
+        #
+        # or:
+        #
+        # "12": {"window": 12, "min_periods": 6}
+        #
+        if isinstance(window_config, dict):
+
+            window = window_config["window"]
+
+            min_periods = window_config.get(
+                "min_periods",
+                window,
+            )
+
+        else:
+
+            window = window_config
+            min_periods = window
+
+        df[f"funding_ma_{key}"] = (
+            df["funding_rate"]
+            .rolling(
+                window,
+                min_periods=min_periods,
+            )
+            .mean()
+        )
 
     return df
 
 
-def rolling_funding_std(
+# ============================================================
+# Rolling Funding Standard Deviation
+# ============================================================
+
+def calculate_funding_std(
     df: pd.DataFrame,
-    window: int = 20,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["funding_std"] = (
-        df["funding_rate"]
-        .rolling(window)
-        .std()
-    )
+    if "funding_std" not in config:
+        return df
+
+    for key, window_config in config["funding_std"].items():
+
+        if isinstance(window_config, dict):
+
+            window = window_config["window"]
+
+            min_periods = window_config.get(
+                "min_periods",
+                window,
+            )
+
+        else:
+
+            window = window_config
+            min_periods = window
+
+        df[f"funding_std_{key}"] = (
+            df["funding_rate"]
+            .rolling(
+                window,
+                min_periods=min_periods,
+            )
+            .std()
+        )
 
     return df
 
 
-def funding_zscore(
+# ============================================================
+# Funding Cumulative
+# ============================================================
+
+def calculate_funding_cumulative(
     df: pd.DataFrame,
-    window: int = 20,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    mean = (
-        df["funding_rate"]
-        .rolling(window)
-        .mean()
-    )
+    if "funding_cumulative" not in config:
+        return df
 
-    std = (
-        df["funding_rate"]
-        .rolling(window)
-        .std()
-    )
+    for key, window_config in config["funding_cumulative"].items():
 
-    df["funding_zscore"] = (
-        (df["funding_rate"] - mean)
-        / std
-    )
+        if isinstance(window_config, dict):
+
+            window = window_config["window"]
+
+        else:
+
+            window = window_config
+
+        df[f"funding_cumulative_{key}"] = (
+            df["funding_rate"]
+            .rolling(window)
+            .sum()
+        )
 
     return df
 
 
-def funding_extreme(
+# ============================================================
+# Funding Z-Score
+# ============================================================
+
+def calculate_funding_zscore(
     df: pd.DataFrame,
-    threshold: float = 2.0,
+    config: dict,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["funding_extreme"] = (
-        df["funding_zscore"].abs()
-        >= threshold
+    if "funding_zscore" not in config:
+        return df
+
+    for key, window_config in config["funding_zscore"].items():
+
+        if isinstance(window_config, dict):
+
+            window = window_config["window"]
+
+            min_periods = window_config.get(
+                "min_periods",
+                window,
+            )
+
+        else:
+
+            window = window_config
+            min_periods = window
+
+        rolling_mean = (
+            df["funding_rate"]
+            .rolling(
+                window,
+                min_periods=min_periods,
+            )
+            .mean()
+        )
+
+        rolling_std = (
+            df["funding_rate"]
+            .rolling(
+                window,
+                min_periods=min_periods,
+            )
+            .std()
+        )
+
+        df[f"funding_zscore_{key}"] = (
+            (
+                df["funding_rate"]
+                - rolling_mean
+            )
+            / rolling_std
+        )
+
+    return df
+
+
+# ============================================================
+# Funding Extreme
+# ============================================================
+
+def calculate_funding_extreme(
+    df: pd.DataFrame,
+    config: dict,
+) -> pd.DataFrame:
+
+    df = df.copy()
+
+    if "funding_extreme" not in config:
+        return df
+
+    for key, threshold in config["funding_extreme"].items():
+
+        zscore_column = (
+            f"funding_zscore_{key}"
+        )
+
+        if zscore_column not in df.columns:
+            continue
+
+        df[f"funding_extreme_{key}"] = (
+            df[zscore_column].abs()
+            >= threshold
+        )
+
+    return df
+
+
+# ============================================================
+# Main Funding Feature Builder
+# ============================================================
+
+def calculate_funding_features(
+    df: pd.DataFrame,
+    config: dict,
+) -> pd.DataFrame:
+
+    df = df.copy()
+
+    df = calculate_funding_change(
+        df,
+        config,
+    )
+
+    df = calculate_funding_mean(
+        df,
+        config,
+    )
+
+    df = calculate_funding_std(
+        df,
+        config,
+    )
+
+    df = calculate_funding_cumulative(
+        df,
+        config,
+    )
+
+    df = calculate_funding_zscore(
+        df,
+        config,
+    )
+
+    df = calculate_funding_extreme(
+        df,
+        config,
     )
 
     return df
